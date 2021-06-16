@@ -72,7 +72,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem):
+def depthFirstSearch(problem): 
     """
     Search the deepest nodes in the search tree first.
 
@@ -87,17 +87,144 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #python3 pacman.py -l mediumMaze -p SearchAgent -a fn=dfs -z 1.2
+
+    #init
+    stack = util.Stack()
+    stack.push( (problem.getStartState(), []) )
+    visited = []
+
+    while True:
+        #visit(pop) new state
+        state, path = stack.pop()
+        visited.append(state)
+
+        if problem.isGoalState(state):
+            return path
+
+        #add new children to stack and remember path to child
+        for successor, action, _ in problem.getSuccessors(state):
+            if successor not in visited:
+                stack.push( (successor, path + [action]) )
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #python3 pacman.py -l mediumMaze -p SearchAgent -a fn=bfs -z 1.2
+    #init
+    queue = util.Queue() #new
+    queue.push( (problem.getStartState(), []) )
+    visited = []
+
+    while True:
+        #visit(pop) new state
+        state, path = queue.pop()
+        visited.append(state)
+
+        if problem.isGoalState(state):
+            return path
+
+        #add new children to queue and remember path to child
+        for successor, action, _ in problem.getSuccessors(state):
+            if successor not in visited:
+                #successor not in queue (important, as otherwise some states will be handled multiple times?)
+                #state of Queue looks like following (cords, path)
+                if successor not in [state[0] for state in queue.list]: #new
+                    queue.push( (successor, path + [action]) )
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #python3 pacman.py -l mediumMaze -p SearchAgent -a fn=ucs
+    #python3 pacman.py -l mediumDottedMaze -p StayEastSearchAgent
+    #python3 pacman.py -l mediumScaryMaze -p StayWestSearchAgent
+    #init
+    priQueue = util.PriorityQueue() #new
+    priQueue.push( problem.getStartState(), 0 )
+    visited = []
+    path_to_all_states = {} #new
+    path_to_all_states[ str(problem.getStartState()) ] = []
+
+    while True:
+        #visit(pop) new state
+        state = priQueue.pop()
+        path = path_to_all_states[str(state)] 
+        visited.append(state)
+
+        if problem.isGoalState(state):
+            return path_to_all_states[str(state)]
+
+        #add new children to stack
+        for successor, action, _ in problem.getSuccessors(state):
+            if successor not in visited:
+
+                #state of PriorityQueue looks like following (cost, queueNumber, cords)
+                inQueueStates = [state for state in priQueue.heap if state[2] == successor] 
+                #successor not in queue
+                if inQueueStates == []: 
+                    #update path and push
+                    path_to_all_states[str(successor)] = path + [action]
+                    priQueue.push( successor, problem.getCostOfActions(path + [action]) ) 
+
+                #successor already in queue 
+                else: 
+                    #check if new occurrence has lower cost, than occurrence already in queue
+                    old_path_cost, _ , _ = inQueueStates[0]
+                    new_path_cost = problem.getCostOfActions(path + [action])
+                    #update path and queue with new cost
+                    if new_path_cost < old_path_cost:
+                        path_to_all_states[str(successor)] = path + [action]
+                        priQueue.update(successor, new_path_cost)
+                        
+
+
+
+
+def GreedyBestFirstSearch(problem):
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
+    #python3 pacman.py -l mediumMaze -p SearchAgent -a fn=GreedyBestFirstSearch
+    #python3 pacman.py -l mediumDottedMaze -p SearchAgent -a fn=GreedyBestFirstSearch
+    #python3 pacman.py -l mediumScaryMaze -p SearchAgent -a fn=GreedyBestFirstSearch
+    
+    #init
+    priQueue = util.PriorityQueue() 
+    priQueue.push( problem.getStartState(), 0 )
+    visited = []
+    path_to_all_states = {} 
+    path_to_all_states[ str(problem.getStartState()) ] = []
+
+    while True:
+        #visit(pop) new state
+        state = priQueue.pop()
+        path = path_to_all_states[str(state)] 
+        visited.append(state)
+
+        if problem.isGoalState(state):
+            return path_to_all_states[str(state)]
+
+        #add new children to stack
+        for successor, action, stepCost in problem.getSuccessors(state): #new stepCost
+            if successor not in visited:
+
+                #state of PriorityQueue looks like following (cost, queueNumber, cords)
+                in_queue_state = [state for state in priQueue.heap if state[2] == successor] 
+                #successor not in queue
+                if in_queue_state == []: 
+                    #update path and push
+                    path_to_all_states[str(successor)] = path + [action]
+                    priQueue.push( successor, stepCost ) #new stepCost
+
+                #successor already in queue 
+                else: 
+                    #check if new occurrence has lower cost, than occurrence already in queue
+                    old_path_cost, _ , _ = in_queue_state[0]
+                    #update path and queue with new cost
+                    if stepCost < old_path_cost:
+                        path_to_all_states[str(successor)] = path + [action]
+                        priQueue.update(successor, stepCost) #new stepCost
 
 def nullHeuristic(state, problem=None):
     """
@@ -109,7 +236,43 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #python3 pacman.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+    priQueue = util.PriorityQueue() 
+    priQueue.push( problem.getStartState(), 0 )
+    visited = []
+    path_to_all_states = {} 
+    path_to_all_states[ str(problem.getStartState()) ] = []
+
+    while True:
+        #visit(pop) new state
+        state = priQueue.pop()
+        path = path_to_all_states[str(state)] 
+        visited.append(state)
+
+        if problem.isGoalState(state):
+            return path_to_all_states[str(state)]
+
+        #add new children to stack
+        for successor, action, _ in problem.getSuccessors(state):
+            if successor not in visited:
+
+                #state of PriorityQueue looks like following (cost, queueNumber, cords)
+                in_queue_state = [state for state in priQueue.heap if state[2] == successor] 
+                #successor not in queue
+                if in_queue_state == []: 
+                    #update path and push
+                    path_to_all_states[str(successor)] = path + [action]
+                    priQueue.push( successor, problem.getCostOfActions(path + [action]) + heuristic(successor,problem) ) # new heuristic
+
+                #successor already in queue 
+                else: 
+                    #check if new occurrence has lower cost, than occurrence already in queue
+                    old_path_cost, _ , _ = in_queue_state[0]
+                    new_path_cost = problem.getCostOfActions(path + [action]) + heuristic(successor,problem) # new heuristic
+                    #update path and queue with new cost
+                    if new_path_cost < old_path_cost:
+                        path_to_all_states[str(successor)] = path + [action]
+                        priQueue.update(successor, new_path_cost)
 
 
 # Abbreviations

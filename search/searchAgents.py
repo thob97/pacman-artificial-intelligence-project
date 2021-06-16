@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+from random import expovariate
 from game import Directions
 from game import Agent
 from game import Actions
@@ -267,6 +268,8 @@ def euclideanHeuristic(position, problem, info={}):
 #####################################################
 
 class CornersProblem(search.SearchProblem):
+    #python3 pacman.py -l tinyCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
+    #python3 pacman.py -l mediumCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
     """
     This search problem finds paths through all four corners of a layout.
 
@@ -295,14 +298,17 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        cornerDict = {}
+        return (self.startingPosition, cornerDict)
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        _ , cornerDict = state
+        #if all corner were visited -> return True
+        return len(cornerDict) == len(self.corners)
 
     def getSuccessors(self, state):
         """
@@ -325,6 +331,21 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            coordinates, cornerDict = state
+            #mostly copy pasta from PositionSearchProblem.getSuccessors 
+            x,y = coordinates
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+
+                #if nextState is a corner, update cornerDict
+                temp_cornerDict = cornerDict.copy()
+                if (nextx, nexty) in self.corners:
+                    temp_cornerDict[str((nextx, nexty))] = 1
+
+                nextState = ((nextx, nexty), temp_cornerDict) #new: add next cords to visited
+                cost = 1
+                successors.append( ( nextState, action, cost) )
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -360,7 +381,14 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    #python3 pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
+    #find the corner farest from current state with manhattanDistance
+    #max as this will guarantee Consistents
+    cords, cornerDict = state
+    notExploredCorners = [corner for corner in corners if str(corner) not in cornerDict]
+    distance_from_state_to_corner_list = [util.manhattanDistance(cords, corner) for corner in notExploredCorners]
+    return max(distance_from_state_to_corner_list + [0])
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -454,7 +482,16 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    #python3 pacman.py -l tinySearch -p AStarFoodSearchAgent
+    #python3 pacman.py -l trickySearch -p AStarFoodSearchAgent
+    #find the food farest from current state with manhattanDistance
+    #max as this will guarantee Consistents
+    cords, _ = state
+    distanceList = [0]
+    for food in foodGrid.asList():
+        distanceList.append(util.manhattanDistance(cords, food))
+    return max(distanceList)
+
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
