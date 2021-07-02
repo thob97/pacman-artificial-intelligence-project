@@ -110,7 +110,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
-
+    
     def getAction(self, gameState):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -135,7 +135,54 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #python3 autograder.py -q q2
+        #python3 pacman.py -p MinimaxAgent -l minimaxClassic -a depth=4 -> -492
+        #python3 pacman.py -p MinimaxAgent -l minimaxClassic -a depth=3 -> 7
+        #python3 pacman.py -p MinimaxAgent -l minimaxClassic -a depth=2 -> 8
+        #python3 pacman.py -p MinimaxAgent -l minimaxClassic -a depth=1 -> 9
+        
+        LASTGHOST = gameState.getNumAgents() 
+        PACMAN = 0
+        FIRSTGHOST = 1
+
+        def max_value(self, state, depth):
+            value = float('-inf')
+            for action in state.getLegalActions(PACMAN):
+                successor = state.generateSuccessor(PACMAN, action)
+                value = max(value, min_max(self, successor, depth+1, FIRSTGHOST)) 
+            return value
+
+        def min_value(self, state, depth, ghostIndex):
+            value = float('inf')
+            for action in state.getLegalActions(ghostIndex):
+                successor = state.generateSuccessor(ghostIndex,action)
+                value = min(value, min_max(self, successor, depth, ghostIndex+1))
+            return value
+
+        def min_max(self, state, depth, agentIndex):
+            #if isWin or isLose
+            #or if depth is reached and all ghosts have made their last move
+            if state.isWin() or state.isLose() or (depth >= self.depth and agentIndex==LASTGHOST) :
+                return self.evaluationFunction(state)
+            #after last ghost made his move, pacman can move again
+            # IF MAX
+            if agentIndex is LASTGHOST: 
+                return max_value(self, state, depth)
+            # IF MIN
+            else: 
+                return min_value(self, state, depth, agentIndex)
+
+        #first max_value iteration. But will return action instead of a value
+        def run():
+            value = float('-inf')
+            bestAction = None
+            for action in gameState.getLegalActions(PACMAN):
+                successor = gameState.generateSuccessor(PACMAN, action)
+                value, bestAction = max( (value, bestAction) , (min_max(self, successor, 1, FIRSTGHOST), action))
+            #print(value)
+            return bestAction
+
+        return run()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -147,7 +194,66 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #python3 autograder.py -q q3
+        #python3 pacman.py -p AlphaBetaAgent -a depth=3 -l smallClassic
+        # as fast as...
+        #python3 pacman.py -p MinimaxAgent -a depth=3 -l smallClassic
+
+        #python3 pacman.py -p AlphaBetaAgent -l minimaxClassic -a depth=4 -> -492
+        #python3 pacman.py -p AlphaBetaAgent -l minimaxClassic -a depth=3 -> 7
+        #python3 pacman.py -p AlphaBetaAgent -l minimaxClassic -a depth=2 -> 8
+        #python3 pacman.py -p AlphaBetaAgent -l minimaxClassic -a depth=1 -> 9
+
+        LASTGHOST = gameState.getNumAgents() 
+        PACMAN = 0
+        FIRSTGHOST = 1
+
+        def max_value(self, state, depth, alpha, beta):
+            value = float('-inf')
+            for action in state.getLegalActions(PACMAN):
+                successor = state.generateSuccessor(PACMAN, action)
+                value = max(value, min_max(self, successor, depth+1, FIRSTGHOST, alpha, beta)) 
+                if value > beta:            #new
+                    return value            #
+                alpha = max(value, alpha)   #
+            return value
+
+        def min_value(self, state, depth, ghostIndex, alpha, beta):
+            value = float('inf')
+            for action in state.getLegalActions(ghostIndex):
+                successor = state.generateSuccessor(ghostIndex,action)
+                value = min(value, min_max(self, successor, depth, ghostIndex+1, alpha, beta))
+                if value < alpha:       #new
+                    return value        #
+                beta = min(value, beta) #
+            return value
+
+        def min_max(self, state, depth, agentIndex, alpha, beta):
+            if state.isWin() or state.isLose() or (depth >= self.depth and agentIndex==LASTGHOST) :
+                return self.evaluationFunction(state)
+            # IF MAX
+            if agentIndex is LASTGHOST: 
+                return max_value(self, state, depth, alpha, beta)
+            # IF MIN
+            else: 
+                return min_value(self, state, depth, agentIndex, alpha, beta)
+     
+        #first max_value iteration. But will return action instead of a value
+        def run():
+            value = float('-inf')
+            alpha = float('-inf')
+            beta = float('inf')
+            bestAction = None
+            for action in gameState.getLegalActions(PACMAN):
+                successor = gameState.generateSuccessor(PACMAN, action)
+                value, bestAction = max( (value, bestAction) , (min_max(self, successor, 1, FIRSTGHOST, alpha, beta), action))
+                if value > beta:            #new
+                    return value            #
+                alpha = max(value, alpha)   #
+            #print(value)
+            return bestAction
+
+        return run()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -162,7 +268,53 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #python3 autograder.py -q q4
+        #python3 pacman.py -p AlphaBetaAgent -a depth=3 -l smallClassic
+        # as fast as...
+        #python3 pacman.py -p MinimaxAgent -a depth=3 -l smallClassic
+        #Q3
+        #python3 pacman.py -p AlphaBetaAgent -l trappedClassic -a depth=3 -q -n 10
+        #python3 pacman.py -p ExpectimaxAgent -l trappedClassic -a depth=3 -q -n 10
+
+        LASTGHOST = gameState.getNumAgents() 
+        PACMAN = 0
+        FIRSTGHOST = 1
+
+        def max_value(self, state, depth):
+            value = float('-inf')
+            for action in state.getLegalActions(PACMAN):
+                successor = state.generateSuccessor(PACMAN, action)
+                value = max(value, min_max(self, successor, depth+1, FIRSTGHOST)) 
+            return value
+
+        def exp_value(self, state, depth, ghostIndex):                                  #new
+            value = 0                                                                   #
+            probability = 1 / len(state.getLegalActions(ghostIndex))                    #
+            for action in state.getLegalActions(ghostIndex):                            #
+                successor = state.generateSuccessor(ghostIndex,action)                  #
+                value += probability * min_max(self, successor, depth, ghostIndex+1)    #
+            return value                                                                #
+
+        def min_max(self, state, depth, agentIndex):
+            if state.isWin() or state.isLose() or (depth >= self.depth and agentIndex==LASTGHOST) :
+                return self.evaluationFunction(state)
+            # IF MAX
+            if agentIndex is LASTGHOST: 
+                return max_value(self, state, depth)
+            # IF MIN
+            else: 
+                return exp_value(self, state, depth, agentIndex)
+
+        def run():
+            value = float('-inf')
+            bestAction = None
+            for action in gameState.getLegalActions(PACMAN):
+                successor = gameState.generateSuccessor(PACMAN, action)
+                value, bestAction = max( (value, bestAction) , (min_max(self, successor, 1, FIRSTGHOST), action))
+            #print(value)
+            return bestAction
+
+        return run()
 
 def betterEvaluationFunction(currentGameState):
     """
