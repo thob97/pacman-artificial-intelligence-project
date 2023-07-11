@@ -1,4 +1,6 @@
-# Title
+# Pacman Artificial Intelligence Project
+
+<img src="./_github_example_pictures/preview.gif" width="45%" height="45%"/>
 
 Project for the Artificial Intelligence course. The objective is to tackle diverse challenges presented in the Pacman universe, such as finding the shortest path, consuming all dots, and evading enemies. These tasks have been addressed through the utilization of different search algorithms like depth-first search, A*, and minmax.
 
