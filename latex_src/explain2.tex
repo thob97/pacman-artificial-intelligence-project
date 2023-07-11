@@ -1,0 +1,67 @@
+\input{src/header}
+
+
+\newcommand{\veranstaltung}{Künstliche Intelligenz}
+\newcommand{\semester}{SoSe21}
+\newcommand{\studenten}{Jonny Lam \& Thore Brehmer}
+\newcommand{\ubungNo}{2}
+
+
+% /////////////////////// BEGIN DOKUMENT /////////////////////////
+\begin{document}
+\input{src/titlepage}
+
+% /////////////////////// Aufgabe 1 /////////////////////////
+\section{Q1: Why does Pacman rush to the closest ghost in this case?}
+\begin{itemize}
+    \item The question was already somewhat explained in the project sheet. 'When Pacman believes that his death is unavoidable, he will try to end the game as soon as possible because of the constant penalty for living.'
+    \item It should also be noted that we assume that the ghost always take the best path for themselves (the path in which we lose the fastest). Hence the closest ghost is the quickest way to lose, resulting in losing the fewest points.
+\end{itemize}
+
+% /////////////////////// Aufgabe 2 /////////////////////////
+\section{Q2: Compare this solution with the previous minimax and comment on that.}
+\begin{itemize}
+    \item Both algorithms will return the same actions and thus run the same path. The only difference is that the Alpha-Beta Pruning will skip the calculation of unnecessary paths and hence it will run faster.
+\end{itemize}
+
+
+\newpage
+% /////////////////////// Aufgabe 3 /////////////////////////
+\section{Q3: Investigate the results of these two scenarios and comment on them:}
+\lstinputlisting[language=python]{src/files/project2/q3.txt}
+
+\begin{itemize}
+    \item For the 1. command pacman always runs right into the closest ghost and thus always loses the game.
+    \item Output for 1. command:
+    \item[] \lstinputlisting[language=python]{src/files/project2/alphabetaagent.txt}
+    \item[]
+    \item For the 2. command pacman always tries to eat the foot on the left path. 
+    \item He either runs into the opposing ghost on this path, if the ghost runs towards, resulting in pacman and losing the game
+    \item or he is able to eat all food and win the game, if the ghost runs away from pacman.
+    \item Output for 2. command:
+    \item[] \lstinputlisting[language=python]{src/files/project2/expectimaxagent.txt}
+\end{itemize}
+
+
+\newpage
+% /////////////////////// Aufgabe 4 /////////////////////////
+\section{Q4: Make sure you understand why the behavior here differs from the minimax case and comment on it.}
+\begin{itemize}
+    \item \textbf{Minimax}
+    \begin{itemize}
+        \item In minmax we assume that the ghost always take the best path for themselves (the path in which we lose the fastest). Hence the closest ghost is the quickest way to lose, resulting in losing the fewest points. That is why pacman moves right.
+        \item If pacman would move left on the otherhand, the opposing ghost on that path would just move towards pacman. Pacman would not be able to eat any food, but he would live longer, resulting in losing more points. => Worse score than moving right. 
+        \item Score moving right = -501, while score moving left = -502
+    \end{itemize}
+    
+    \item \textbf{Expectimax}
+    \begin{itemize}
+        \item In expectimax we assume that the ghost takes a random path. With that we calculate the best path (highest score) for pacman. We do that by taking the \underline{path with the highest average points}.
+        \item The right path will always result in -501 points. While the left path can either result in -502 or 532 points.
+        \item So the average of the left path is 15 points. This is much better than the average of the right path, which is -502. Thats why pacman always goes left.
+    \end{itemize}
+
+\end{itemize}
+
+% /////////////////////// END DOKUMENT /////////////////////////
+\end{document}

@@ -1,0 +1,14 @@
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Pacman died! Score: -501
+Average Score: -501.0
+Scores:        -501.0, -501.0, -501.0, -501.0, -501.0, -501.0, -501.0, -501.0, -501.0, -501.0
+Win Rate:      0/10 (0.00)
+Record:        Loss, Loss, Loss, Loss, Loss, Loss, Loss, Loss, Loss, Loss
