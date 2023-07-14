@@ -10,6 +10,7 @@ Project for the Artificial Intelligence course. The objective is to tackle diver
 - [Grading](#grading)
 - [Getting Started](#getting-started)
 - [Contribution](#contribution)
+- [See also](#see-also)
 
 
 ## Course content
@@ -62,3 +63,6 @@ Syllabus:
 
 * Thore Brehmer - solved project part 1 & part 2
 * Jonny Lam - 
+
+## See also
+* [Uni Overview](https://github.com/thob97/uni_overview.git)
